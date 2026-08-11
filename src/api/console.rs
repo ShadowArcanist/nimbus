@@ -633,6 +633,188 @@ pub async fn delete_object_api(
     }
 }
 
+#[derive(serde::Deserialize)]
+pub struct MoveRequest {
+    from: String,
+    to: String,
+    #[serde(rename = "destBucket")]
+    dest_bucket: Option<String>,
+}
+
+/// Move (rename) an object or a whole folder prefix, optionally across buckets.
+/// Implemented as copy + delete on the storage layer.
+pub async fn move_object_api(
+    State(state): State<AppState>,
+    Path(bucket): Path<String>,
+    Json(req): Json<MoveRequest>,
+) -> impl IntoResponse {
+    let dest_bucket = req.dest_bucket.unwrap_or_else(|| bucket.clone());
+
+    for b in [&bucket, &dest_bucket] {
+        match state.storage.head_bucket(b).await {
+            Ok(true) => {}
+            Ok(false) => {
+                return (
+                    StatusCode::NOT_FOUND,
+                    Json(serde_json::json!({"error": format!("Bucket \"{}\" not found", b)})),
+                )
+                    .into_response();
+            }
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response();
+            }
+        }
+    }
+
+    let from = req.from;
+    let to = req.to;
+    if from.is_empty() || to.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "from and to are required"})),
+        )
+            .into_response();
+    }
+    if from == to && dest_bucket == bucket {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "Source and destination are the same"})),
+        )
+            .into_response();
+    }
+
+    let is_folder = from.ends_with('/');
+    if is_folder {
+        if !to.ends_with('/') {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"error": "Folder destination must end with /"})),
+            )
+                .into_response();
+        }
+        if dest_bucket == bucket && to.starts_with(&from) {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"error": "Cannot move a folder into itself"})),
+            )
+                .into_response();
+        }
+    }
+
+    // Collect keys to move
+    let keys: Vec<String> = if is_folder {
+        match state.storage.list_objects(&bucket, &from).await {
+            Ok(objs) => objs.into_iter().map(|o| o.key).collect(),
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response();
+            }
+        }
+    } else {
+        vec![from.clone()]
+    };
+
+    if keys.is_empty() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({"error": "Nothing to move"})),
+        )
+            .into_response();
+    }
+
+    let mut moved = 0usize;
+    for key in &keys {
+        // Bucket-default encryption holds no customer key, so refetching per key is safe and cheap
+        let dest_encryption = match state.storage.get_bucket_encryption(&dest_bucket).await {
+            Ok(Some(cfg)) => Some(crate::api::object::encryption_from_bucket_default(&cfg)),
+            Ok(None) => None,
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response();
+            }
+        };
+        let new_key = if is_folder {
+            format!("{}{}", to, &key[from.len()..])
+        } else {
+            to.clone()
+        };
+
+        let (reader, src_meta) = match state.storage.get_object(&bucket, key, None).await {
+            Ok(r) => r,
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({
+                        "error": format!("Failed to read \"{}\": {}", key, e)
+                    })),
+                )
+                    .into_response();
+            }
+        };
+
+        if let Err(e) = state
+            .storage
+            .put_object(
+                &dest_bucket,
+                &new_key,
+                &src_meta.content_type,
+                reader,
+                None,
+                dest_encryption,
+            )
+            .await
+        {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({
+                    "error": format!("Failed to write \"{}\": {}", new_key, e)
+                })),
+            )
+                .into_response();
+        }
+
+        if let Err(e) = state.storage.delete_object(&bucket, key).await {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({
+                    "error": format!("Copied but failed to delete \"{}\": {}", key, e)
+                })),
+            )
+                .into_response();
+        }
+        moved += 1;
+    }
+
+    // Keep the source parent folder visible if the move emptied it (single objects only)
+    if !is_folder {
+        if let Err(e) =
+            preserve_empty_parent_folder_after_object_delete(&state.storage, &bucket, &from).await
+        {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": e})),
+            )
+                .into_response();
+        }
+    }
+
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({"ok": true, "moved": moved})),
+    )
+        .into_response()
+}
+
 fn parent_folder_prefix_for_deleted_object(key: &str) -> Option<String> {
     if key.ends_with('/') {
         return None;
@@ -1145,6 +1327,7 @@ pub fn console_router(state: AppState) -> Router<AppState> {
         .route("/buckets", post(create_bucket))
         .route("/buckets/{bucket}", delete(delete_bucket_api))
         .route("/buckets/{bucket}/folders", post(create_folder))
+        .route("/buckets/{bucket}/move", post(move_object_api))
         .route("/buckets/{bucket}/objects", get(list_objects))
         .route(
             "/buckets/{bucket}/objects/{*key}",
