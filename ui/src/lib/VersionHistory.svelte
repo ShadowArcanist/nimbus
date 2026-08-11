@@ -81,9 +81,9 @@
   }
 </script>
 
-<div class="rounded-sm border bg-card">
-  <div class="flex items-center justify-between border-b px-4 py-2">
-    <h4 class="text-sm font-semibold">Version History</h4>
+<div class="rounded-xl border border-neutral-200 bg-white dark:border-white/[0.07] dark:bg-white/[0.02]">
+  <div class="flex items-center justify-between border-b border-neutral-200 px-4 py-2.5 dark:border-white/[0.06]">
+    <h4 class="text-sm font-semibold">Version history</h4>
     <Button variant="ghost" size="sm" onclick={onClose}>Close</Button>
   </div>
 
@@ -105,7 +105,7 @@
           <Table.Head>Date</Table.Head>
           <Table.Head>Size</Table.Head>
           <Table.Head>Type</Table.Head>
-          <Table.Head class="w-20"></Table.Head>
+          <Table.Head class="w-20">Actions</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -116,27 +116,27 @@
                 {version.versionId ? truncateId(version.versionId) : 'null'}
               </span>
               {#if i === 0}
-                <span class="ml-1 rounded-sm bg-accent/20 px-1 py-0.5 text-[10px] font-medium text-accent-foreground">latest</span>
+                <span class="ml-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-coollabs/10 text-coollabs ring-1 ring-inset ring-coollabs/25 dark:bg-coollabs-100/15 dark:text-coollabs-100 dark:ring-coollabs-100/30">latest</span>
               {/if}
             </Table.Cell>
             <Table.Cell class="text-muted-foreground text-xs">{formatDate(version.lastModified)}</Table.Cell>
             <Table.Cell class="text-muted-foreground text-xs">
-              {version.isDeleteMarker ? '—' : formatSize(version.size)}
+              {version.isDeleteMarker ? '-' : formatSize(version.size)}
             </Table.Cell>
             <Table.Cell>
               {#if version.isDeleteMarker}
-                <span class="inline-flex items-center gap-1 rounded-sm bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
-                  <Tag class="size-3" /> Delete Marker
+                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-red-50 text-red-700 ring-1 ring-inset ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-900/50">
+                  <Tag class="size-3" /> Delete marker
                 </span>
               {:else}
                 <span class="text-xs text-muted-foreground">Version</span>
               {/if}
             </Table.Cell>
             <Table.Cell class="w-20">
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1">
                 {#if !version.isDeleteMarker && version.versionId}
                   <button
-                    class="text-muted-foreground hover:text-foreground transition-colors"
+                    class="icon-btn-cool"
                     onclick={() => downloadVersion(version.versionId!)}
                     title="Download this version"
                   >
@@ -145,7 +145,7 @@
                 {/if}
                 {#if version.versionId}
                   <button
-                    class="text-muted-foreground hover:text-destructive transition-colors"
+                    class="icon-btn-cool hover:text-red-600 dark:hover:text-red-400"
                     onclick={() => deleteVersion(version.versionId!)}
                     title="Permanently delete this version"
                   >

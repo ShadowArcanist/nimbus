@@ -4,7 +4,7 @@
 	import { type VariantProps, tv } from "tailwind-variants";
 
 	export const badgeVariants = tv({
-		base: "inline-block w-3 h-3 rounded-full leading-none border border-neutral-200 dark:border-black",
+		base: "status-dot",
 		variants: {
 			variant: {
 				success: "bg-success",
@@ -34,30 +34,25 @@
 		...restProps
 	}: BadgeProps = $props();
 
-	const textColor = $derived(
-		variant === "success"
-			? "text-success"
-			: variant === "error"
-				? "text-error"
-				: "text-warning"
-	);
 </script>
 
 {#if label}
-	<span class="inline-flex items-center gap-2">
-		<span
-			bind:this={ref}
-			data-slot="badge"
-			class={cn(badgeVariants({ variant }), className)}
-			{...restProps}
-		></span>
-		<span class="text-xs font-bold {textColor}">{label}</span>
+	<span
+		bind:this={ref}
+		data-slot="badge"
+		class={cn("status-badge", className)}
+		{...restProps}
+	>
+		<span class={badgeVariants({ variant })}></span>
+		<span class="text-neutral-700 dark:text-fg">{label}</span>
 	</span>
 {:else}
 	<span
 		bind:this={ref}
 		data-slot="badge"
-		class={cn(badgeVariants({ variant }), className)}
+		class={cn("status-badge", className)}
 		{...restProps}
-	></span>
+	>
+		<span class={badgeVariants({ variant })}></span>
+	</span>
 {/if}

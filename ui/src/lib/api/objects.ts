@@ -39,6 +39,13 @@ export async function createFolder(bucket: string, name: string): Promise<{ ok: 
   })
 }
 
+export async function moveObject(bucket: string, from: string, to: string, destBucket?: string): Promise<{ ok: boolean; moved: number }> {
+  return apiFetch<{ ok: boolean; moved: number }>(`/api/buckets/${encodeURIComponent(bucket)}/move`, {
+    method: 'POST',
+    body: JSON.stringify({ from, to, ...(destBucket ? { destBucket } : {}) }),
+  })
+}
+
 export async function presignObject(bucket: string, key: string, expires: number): Promise<{ url: string }> {
   return apiFetch<{ url: string }>(`/api/buckets/${encodeURIComponent(bucket)}/presign/${encodeObjectKey(key)}?expires=${expires}`)
 }

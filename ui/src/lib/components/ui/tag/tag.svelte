@@ -13,10 +13,7 @@
 <span
 	bind:this={ref}
 	data-slot="tag"
-	class={cn(
-		"inline-flex items-center px-2 py-1 text-xs font-bold rounded-sm text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:bg-coolgray-100 dark:hover:bg-coolgray-300 cursor-pointer",
-		className
-	)}
+	class={cn("tag-cool", className)}
 	{...restProps}
 >
 	{@render children?.()}

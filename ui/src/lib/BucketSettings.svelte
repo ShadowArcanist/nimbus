@@ -2,7 +2,7 @@
   import { createMutation, createQuery } from '@tanstack/svelte-query'
   import { toast } from '$lib/toast'
   import { Callout } from '$lib/components/ui/callout'
-  import { Switch } from '$lib/components/ui/switch'
+  import { Listbox } from '$lib/components/ui/listbox'
   import { ConfirmDialog } from '$lib/components/ui/confirm-dialog'
   import { bucketKeys, settingsKeys } from '$lib/api/keys'
   import { getEncryption, getPublicAccess, getVersioning, setEncryption, setPublicAccess, setVersioning } from '$lib/api/settings'
@@ -155,7 +155,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 max-w-2xl">
+<div class="flex flex-col gap-6 max-w-3xl">
   {#if versioningQuery.isError || encryptionQuery.isError || publicQuery.isError}
     <Callout type="danger">Failed to load bucket settings</Callout>
   {/if}
@@ -166,99 +166,132 @@
     </Callout>
   {/if}
 
-  <div class="flex flex-col gap-4">
-    <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">General</h3>
-
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-0.5">
-        <span class="text-sm font-medium">Versioning</span>
-        <span class="text-sm text-muted-foreground">
-          {#if versioningQuery.isPending}
-            Loading...
-          {:else if versioningEnabled}
-            Every upload creates a new version. Deleted files become delete markers.
-          {:else}
-            Uploading a file overwrites the previous version.
-          {/if}
-        </span>
+  <div class="rounded-xl border border-neutral-200 bg-white dark:border-white/[0.07] dark:bg-white/[0.02]">
+    <div class="border-b border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/[0.06] dark:text-fg-dim"><span>Versioning</span></div>
+    <div class="p-4">
+      <div class="flex items-center justify-between gap-4 py-3">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-medium text-black dark:text-fg">Versioning</span>
+          <span class="text-[13px] text-muted-foreground">
+            {#if versioningQuery.isPending}
+              Loading...
+            {:else if versioningEnabled}
+              Every upload creates a new version. Deleted files become delete markers.
+            {:else}
+              Uploading a file overwrites the previous version.
+            {/if}
+          </span>
+        </div>
+        {#if !versioningQuery.isPending}
+          <Listbox
+            class="w-48 shrink-0"
+            value={versioningEnabled ? 'enabled' : 'disabled'}
+            options={[
+              { value: 'enabled', label: 'Enabled' },
+              { value: 'disabled', label: 'Disabled' },
+            ]}
+            onChange={() => toggleVersioning()}
+            disabled={versioningMutation.isPending}
+            aria-label="Versioning"
+          />
+        {/if}
       </div>
-      {#if !versioningQuery.isPending}
-        <Switch
-          checked={versioningEnabled}
-          onclick={toggleVersioning}
-          disabled={versioningMutation.isPending}
-          aria-label="Toggle versioning"
-        />
-      {/if}
     </div>
+  </div>
 
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-0.5">
-        <span class="text-sm font-medium">Default encryption (SSE-S3)</span>
-        <span class="text-sm text-muted-foreground">
-          {#if encryptionQuery.isPending}
-            Loading...
-          {:else if encryptionEnabled}
-            New uploads are encrypted at rest with SSE-S3 (AES-256).
-          {:else}
-            New uploads are stored unencrypted unless the client sends SSE headers.
-          {/if}
-        </span>
+  <div class="rounded-xl border border-neutral-200 bg-white dark:border-white/[0.07] dark:bg-white/[0.02]">
+    <div class="border-b border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/[0.06] dark:text-fg-dim"><span>Default encryption</span></div>
+    <div class="p-4">
+      <div class="flex items-center justify-between gap-4 py-3">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-medium text-black dark:text-fg">Default encryption (SSE-S3)</span>
+          <span class="text-[13px] text-muted-foreground">
+            {#if encryptionQuery.isPending}
+              Loading...
+            {:else if encryptionEnabled}
+              New uploads are encrypted at rest with SSE-S3 (AES-256).
+            {:else}
+              New uploads are stored unencrypted unless the client sends SSE headers.
+            {/if}
+          </span>
+        </div>
+        {#if !encryptionQuery.isPending}
+          <Listbox
+            class="w-48 shrink-0"
+            value={encryptionEnabled ? 'enabled' : 'disabled'}
+            options={[
+              { value: 'enabled', label: 'SSE-S3 (AES-256)' },
+              { value: 'disabled', label: 'Disabled' },
+            ]}
+            onChange={() => toggleEncryption()}
+            disabled={encryptionMutation.isPending}
+            aria-label="Default encryption"
+          />
+        {/if}
       </div>
-      {#if !encryptionQuery.isPending}
-        <Switch
-          checked={encryptionEnabled}
-          onclick={toggleEncryption}
-          disabled={encryptionMutation.isPending}
-          aria-label="Toggle default encryption"
-        />
-      {/if}
     </div>
+  </div>
 
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-0.5">
-        <span class="text-sm font-medium">Public read</span>
-        <span class="text-sm text-muted-foreground">
-          {#if publicQuery.isPending}
-            Loading...
-          {:else if publicRead}
-            Anyone with an object URL can download it without credentials.
-          {:else}
-            Object downloads require a signed request.
+  <div class="rounded-xl border border-neutral-200 bg-white dark:border-white/[0.07] dark:bg-white/[0.02]">
+    <div class="border-b border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/[0.06] dark:text-fg-dim"><span>Public access</span></div>
+    <div class="p-4">
+      <div class="divide-y divide-neutral-200 dark:divide-white/[0.06]">
+        <div class="flex items-center justify-between gap-4 py-3 pt-0">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-medium text-black dark:text-fg">Public read</span>
+            <span class="text-[13px] text-muted-foreground">
+              {#if publicQuery.isPending}
+                Loading...
+              {:else if publicRead}
+                Anyone with an object URL can download it without credentials.
+              {:else}
+                Object downloads require a signed request.
+              {/if}
+            </span>
+          </div>
+          {#if !publicQuery.isPending}
+            <Listbox
+              class="w-48 shrink-0"
+              value={publicRead ? 'public' : 'signed'}
+              options={[
+                { value: 'signed', label: 'Signed requests' },
+                { value: 'public', label: 'Public' },
+              ]}
+              onChange={() => togglePublicRead()}
+              disabled={publicMutation.isPending}
+              aria-label="Public read"
+            />
           {/if}
-        </span>
-      </div>
-      {#if !publicQuery.isPending}
-        <Switch
-          checked={publicRead}
-          onclick={togglePublicRead}
-          disabled={publicMutation.isPending}
-          aria-label="Toggle public read"
-        />
-      {/if}
-    </div>
+        </div>
 
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-0.5">
-        <span class="text-sm font-medium">Public listing</span>
-        <span class="text-sm text-muted-foreground">
-          {#if publicQuery.isPending}
-            Loading...
-          {:else if publicList}
-            Anyone can list every object key in this bucket without credentials.
-          {:else}
-            Listing the bucket requires a signed request.
+        <div class="flex items-center justify-between gap-4 py-3 pb-0">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-medium text-black dark:text-fg">Public listing</span>
+            <span class="text-[13px] text-muted-foreground">
+              {#if publicQuery.isPending}
+                Loading...
+              {:else if publicList}
+                Anyone can list every object key in this bucket without credentials.
+              {:else}
+                Listing the bucket requires a signed request.
+              {/if}
+            </span>
+          </div>
+          {#if !publicQuery.isPending}
+            <Listbox
+              class="w-48 shrink-0"
+              value={publicList ? 'public' : 'signed'}
+              options={[
+                { value: 'signed', label: 'Signed requests' },
+                { value: 'public', label: 'Public' },
+              ]}
+              onChange={() => togglePublicList()}
+              disabled={publicMutation.isPending}
+              aria-label="Public listing"
+            />
           {/if}
-        </span>
+        </div>
       </div>
-      {#if !publicQuery.isPending}
-        <Switch
-          checked={publicList}
-          onclick={togglePublicList}
-          disabled={publicMutation.isPending}
-          aria-label="Toggle public listing"
-        />
-      {/if}
     </div>
   </div>
 </div>

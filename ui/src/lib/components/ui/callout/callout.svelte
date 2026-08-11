@@ -4,16 +4,16 @@
 	import { type VariantProps, tv } from "tailwind-variants";
 
 	export const calloutVariants = tv({
-		base: "relative flex gap-3 rounded-sm border border-neutral-200 bg-white p-3 text-sm text-black dark:border-coolgray-300 dark:bg-coolgray-100 dark:text-white",
+		base: "relative flex gap-2.5 rounded-lg p-3 text-sm ring-1 ring-inset",
 		variants: {
 			type: {
 				warning:
-					"bg-warning-50 border-warning-300 dark:bg-warning-900/30 dark:border-warning-800 [&_.callout-title]:text-warning-800 [&_.callout-body]:text-warning-700 dark:[&_.callout-title]:text-warning-300 dark:[&_.callout-body]:text-warning-200 [&_.callout-icon]:text-warning-700 dark:[&_.callout-icon]:text-warning-300",
+					"bg-warning-50 text-yellow-800 ring-warning-200 dark:bg-warning/10 dark:text-warning dark:ring-warning/25 [&_.callout-icon]:text-yellow-600 dark:[&_.callout-icon]:text-warning",
 				danger:
-					"bg-red-50 border-red-300 dark:bg-red-900/30 dark:border-red-800 [&_.callout-title]:text-red-800 [&_.callout-body]:text-red-700 dark:[&_.callout-title]:text-red-300 dark:[&_.callout-body]:text-red-200 [&_.callout-icon]:text-red-700 dark:[&_.callout-icon]:text-red-300",
-				info: "bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-800 [&_.callout-title]:text-blue-800 [&_.callout-body]:text-blue-700 dark:[&_.callout-title]:text-blue-300 dark:[&_.callout-body]:text-blue-200 [&_.callout-icon]:text-blue-700 dark:[&_.callout-icon]:text-blue-300",
+					"bg-red-50 text-red-800 ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-900/50 [&_.callout-icon]:text-red-600 dark:[&_.callout-icon]:text-red-400",
+				info: "bg-neutral-50 text-neutral-700 ring-neutral-200 dark:bg-white/[0.03] dark:text-fg-dim dark:ring-white/[0.06] [&_.callout-icon]:text-neutral-400 dark:[&_.callout-icon]:text-fg-faint",
 				success:
-					"bg-green-50 border-green-300 dark:bg-green-900/30 dark:border-green-800 [&_.callout-title]:text-green-800 [&_.callout-body]:text-green-700 dark:[&_.callout-title]:text-green-300 dark:[&_.callout-body]:text-green-200 [&_.callout-icon]:text-green-700 dark:[&_.callout-icon]:text-green-300",
+					"bg-green-50 text-green-800 ring-green-200 dark:bg-green-950/30 dark:text-green-300 dark:ring-green-900/50 [&_.callout-icon]:text-green-600 dark:[&_.callout-icon]:text-green-400",
 			},
 		},
 		defaultVariants: {
@@ -53,7 +53,7 @@
 	{/if}
 	<div class="flex-1 text-sm">
 		{#if title}
-			<div class="callout-title font-bold mb-1">{title}</div>
+			<div class="callout-title font-medium mb-1">{title}</div>
 		{/if}
 		<div class="callout-body">{@render children?.()}</div>
 	</div>

@@ -15,15 +15,15 @@
   toastOptions={{
     classes: {
       toast:
-        'group !rounded-sm !font-sans !text-sm !bg-white dark:!bg-coolgray-100 !text-black dark:!text-white !border dark:!border-coolgray-200 !border-neutral-200 !shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)]',
-      title: '!font-semibold',
-      description: '!text-neutral-500 dark:!text-neutral-400',
-      success: '!border-l-4 !border-l-green-500 [&_[data-icon]]:!text-green-500',
-      error: '!border-l-4 !border-l-red-500 [&_[data-icon]]:!text-red-500',
-      warning: '!border-l-4 !border-l-orange-400 [&_[data-icon]]:!text-orange-400',
-      info: '!border-l-4 !border-l-blue-500 [&_[data-icon]]:!text-blue-500',
+        'group !rounded-xl !font-sans !border !border-neutral-200 !bg-white !text-black !shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:!border-white/[0.08] dark:!bg-[#161618] dark:!text-fg',
+      title: '!text-[13px] !font-medium',
+      description: '!text-xs !text-neutral-500 dark:!text-fg-dim',
+      success: '!border-l-4 !border-l-[#22c55e] [&_[data-icon]]:!text-[#22c55e]',
+      error: '!border-l-4 !border-l-[#dc2626] [&_[data-icon]]:!text-[#dc2626]',
+      warning: '!border-l-4 !border-l-[#facc15] [&_[data-icon]]:!text-[#facc15]',
+      info: '!border-l-4 !border-l-[#e11d48] [&_[data-icon]]:!text-[#e11d48]',
       closeButton:
-        '!bg-white dark:!bg-coolgray-100 !border-neutral-200 dark:!border-coolgray-200 !text-neutral-500 hover:!text-black dark:hover:!text-white',
+        '!bg-white dark:!bg-[#161618] !border-neutral-200 dark:!border-white/[0.08] !text-neutral-500 hover:!text-black dark:hover:!text-fg',
     },
   }}
 />

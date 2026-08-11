@@ -41,7 +41,7 @@
 {#if open}
   <button
     type="button"
-    class="fixed inset-0 z-40 cursor-default bg-black/60"
+    class="fixed inset-0 z-40 cursor-default bg-black/70"
     aria-label="Close dialog"
     disabled={loading}
     onclick={close}
@@ -52,33 +52,29 @@
       aria-modal="true"
       aria-labelledby="dialog-title"
       tabindex="-1"
-      class="rounded-sm border border-neutral-200 bg-white p-4 text-black shadow-sm dark:border-coolgray-300 dark:bg-coolgray-100 dark:text-white"
+      class="w-full max-w-lg overflow-hidden rounded-2xl border border-neutral-200 bg-white text-black shadow-[0_24px_64px_rgba(0,0,0,0.55)] dark:border-white/[0.08] dark:bg-[#101010] dark:text-fg"
     >
-      <div class="flex items-start justify-between gap-4 border-b border-neutral-200 pb-3 dark:border-coolgray-200">
-        <div class="flex flex-col gap-1">
-          <h2 id="dialog-title" class="text-base font-bold text-black dark:text-white">{title}</h2>
-          {#if description}
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">{description}</p>
-          {/if}
-        </div>
-        <Button
+      <div class="flex items-center justify-between gap-3 border-b border-neutral-100 px-6 py-4 dark:border-white/[0.06]">
+        <h2 id="dialog-title" class="min-w-0 truncate text-[17px] font-normal text-black dark:text-neutral-200">{title}</h2>
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
-          class="shrink-0"
+          class="grid size-8 shrink-0 place-items-center rounded-lg text-xl font-light text-neutral-400 transition-colors hover:text-black disabled:opacity-40 dark:text-fg-faint dark:hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           aria-label="Close dialog"
           disabled={loading}
           onclick={close}
         >
           ×
-        </Button>
+        </button>
       </div>
 
-      <div class="mt-4 text-sm text-neutral-700 dark:text-neutral-300">
+      <div class="px-6 py-6 text-sm text-neutral-700 dark:text-fg-dim">
+        {#if description}
+          <p class="mb-4 text-sm text-neutral-500 dark:text-fg-dim">{description}</p>
+        {/if}
         {@render children?.()}
       </div>
 
-      <div class="mt-4 flex flex-wrap justify-end gap-2 border-t border-neutral-200 pt-3 dark:border-coolgray-200">
+      <div class="flex flex-wrap justify-end gap-2.5 border-t border-neutral-100 px-6 py-5 dark:border-white/[0.06]">
         {#if footer}
           {@render footer()}
         {:else}

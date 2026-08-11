@@ -11,10 +11,10 @@
 </script>
 
 <span class={cn("group relative inline-flex items-center", className)}>
-	<HelpCircle class="size-4 text-coollabs dark:text-warning cursor-pointer" />
+	<HelpCircle class="size-4 text-coollabs dark:text-coollabs-100 cursor-pointer" />
 	<span
 		role="tooltip"
-		class="hidden group-hover:block absolute left-5 top-0 z-40 max-w-sm text-xs bg-neutral-200 dark:bg-coolgray-400 text-neutral-700 dark:text-neutral-300 rounded-sm p-2 shadow-md"
+		class="hidden group-hover:block absolute left-5 top-0 z-40 max-w-sm rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs text-neutral-700 shadow-sm dark:border-white/10 dark:bg-raised dark:text-fg"
 	>
 		{text}
 	</span>

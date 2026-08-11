@@ -36,16 +36,19 @@
   }
 </script>
 
-<div class="flex min-h-screen w-full items-center justify-center bg-gray-50 px-6 py-8 dark:bg-base">
-  <div class="mx-auto w-full max-w-md space-y-8 text-black dark:text-white">
+<div class="flex min-h-screen w-full items-center justify-center bg-neutral-50 px-6 py-8 dark:bg-[#0a0a0a]">
+  <div class="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-8 text-black dark:border-white/[0.07] dark:bg-white/[0.02] dark:text-white">
     <!-- Title -->
-    <h1 class="text-center text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">MaxIO</h1>
+    <div class="mb-6 flex flex-col gap-1">
+      <h1 class="text-xl font-semibold tracking-tight">Nimbus</h1>
+      <p class="text-[13px] text-muted-foreground">Sign in to your console</p>
+    </div>
 
     <form onsubmit={handleSubmit} class="flex flex-col gap-4">
       <!-- Access Key -->
-      <div class="flex flex-col gap-1.5">
-        <label for="accessKey" class="text-sm text-muted-foreground">
-          Access Key <Highlighted>*</Highlighted>
+      <div class="flex flex-col">
+        <label for="accessKey" class="mb-1.5 text-[13px] font-medium text-neutral-500 dark:text-fg-dim">
+          Access key <Highlighted>*</Highlighted>
         </label>
         <Input
           id="accessKey"
@@ -57,9 +60,9 @@
       </div>
 
       <!-- Secret Key -->
-      <div class="flex flex-col gap-1.5">
-        <label for="secretKey" class="text-sm text-muted-foreground">
-          Secret Key <Highlighted>*</Highlighted>
+      <div class="flex flex-col">
+        <label for="secretKey" class="mb-1.5 text-[13px] font-medium text-neutral-500 dark:text-fg-dim">
+          Secret key <Highlighted>*</Highlighted>
         </label>
         <div class="relative">
           <Input
@@ -88,8 +91,8 @@
         <Callout type="danger">{error}</Callout>
       {/if}
 
-      <!-- Login button — large highlighted style -->
-      <Button type="submit" variant="highlighted" class="mt-2 h-12 w-full justify-center px-4" disabled={loginMutation.isPending}>
+      <!-- Login button -->
+      <Button type="submit" variant="highlighted" class="mt-2 h-9 w-full justify-center px-4" disabled={loginMutation.isPending}>
         {loginMutation.isPending ? 'Signing in...' : 'Login'}
       </Button>
     </form>

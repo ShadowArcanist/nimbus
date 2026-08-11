@@ -4,30 +4,30 @@
 	import { type VariantProps, tv } from "tailwind-variants";
 
 	export const buttonVariants = tv({
-		base: "inline-flex min-w-fit shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-sm border-2 border-transparent bg-clip-padding px-2 text-sm font-medium normal-case outline-none transition-colors select-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-100 disabled:border-neutral-300 disabled:bg-neutral-100 disabled:text-neutral-600 dark:disabled:border-coolgray-300 dark:disabled:bg-coolgray-100/60 dark:disabled:text-neutral-400 aria-disabled:pointer-events-none aria-disabled:opacity-100 aria-disabled:border-neutral-300 aria-disabled:bg-neutral-100 aria-disabled:text-neutral-600 dark:aria-disabled:border-coolgray-300 dark:aria-disabled:bg-coolgray-100/60 dark:aria-disabled:text-neutral-400 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coollabs dark:focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-offset-base",
+		base: "inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-sm font-medium transition-colors cursor-pointer [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50",
 		variants: {
 			variant: {
 				default:
-					"bg-white text-black border-neutral-200 hover:bg-neutral-100 dark:bg-coolgray-100 dark:text-white dark:border-coolgray-300 dark:hover:bg-coolgray-200",
+					"border border-neutral-200 bg-white text-black hover:bg-neutral-100 dark:border-white/[0.08] dark:bg-white/[0.06] dark:text-fg dark:hover:bg-white/[0.1]",
 				highlighted:
-					"text-coollabs-200 bg-coollabs-50 border-coollabs hover:bg-coollabs hover:text-white dark:text-white dark:bg-coollabs/20 dark:border-coollabs-100 dark:hover:bg-coollabs-100 dark:hover:text-white",
+					"border border-transparent bg-gradient-to-b from-coollabs-100 to-coollabs-200 text-white hover:from-coollabs-100 hover:to-coollabs hover:text-white rounded-lg",
 				destructive:
-					"text-red-800 bg-red-50 border-red-300 hover:bg-error hover:text-white dark:text-red-300 dark:bg-red-900/30 dark:border-red-800 dark:hover:bg-red-800 dark:hover:text-white",
+					"border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-900/25 dark:text-red-300 dark:hover:bg-red-900/40",
 				outline:
-					"bg-transparent text-black border-neutral-200 hover:bg-neutral-100 dark:text-white dark:border-coolgray-300 dark:hover:bg-coolgray-200",
+					"border border-neutral-200 bg-transparent text-black hover:bg-neutral-100 dark:border-white/[0.08] dark:text-fg dark:hover:bg-white/[0.06]",
 				secondary:
-					"bg-neutral-100 text-black border-neutral-200 hover:bg-neutral-200 dark:bg-coolgray-200 dark:text-white dark:border-coolgray-300 dark:hover:bg-coolgray-300",
+					"border border-transparent bg-neutral-100 text-black hover:bg-neutral-200 dark:bg-white/[0.06] dark:text-fg dark:hover:bg-white/[0.1]",
 				ghost:
-					"border-transparent text-black hover:bg-neutral-100 dark:text-white dark:hover:bg-coolgray-200",
-				link: "border-transparent text-coollabs dark:text-warning underline-offset-4 hover:underline",
+					"border border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-black dark:text-fg-dim dark:hover:bg-white/[0.06] dark:hover:text-fg",
+				link: "border-0 text-coollabs hover:underline dark:text-coollabs-100",
 			},
 			size: {
-				default: "h-8 has-[>svg]:px-2",
-				sm: "h-8 px-2 text-sm has-[>svg]:px-2",
-				lg: "h-10 px-3 has-[>svg]:px-3",
+				default: "h-10 px-4",
+				sm: "h-8 px-2.5 text-[13px]",
+				lg: "h-11 px-5",
 				icon: "size-8",
-				"icon-sm": "size-8",
-				"icon-lg": "size-10",
+				"icon-sm": "size-7",
+				"icon-lg": "size-9",
 			},
 		},
 		defaultVariants: {
