@@ -1,0 +1,64 @@
+# Taskfile for MaxIO — https://taskfile.dev
+# Run `task` to list available commands, `task dev` to start hot-reload dev.
+version: "3"
+
+vars:
+  PORT: '{{.PORT | default "9000"}}'
+  HOST: '{{.HOST | default "127.0.0.1"}}'
+  DATA_DIR: '{{.DATA_DIR | default "./data"}}'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  dev:
+    desc: Start full hot-reload dev (Rust backend + Vite UI). UI at http://127.0.0.1:5173/ui/
+    env:
+      PORT: "{{.PORT}}"
+      HOST: "{{.HOST}}"
+      DATA_DIR: "{{.DATA_DIR}}"
+    cmds:
+      - bash scripts/dev.sh
+
+  ui:
+    desc: Run only the frontend (Vite HMR) at http://127.0.0.1:5173/ui/
+    dir: ui
+    cmds:
+      - bun run dev
+
+  install:
+    desc: Install frontend dependencies (bun)
+    dir: ui
+    cmds:
+      - bun install
+
+  build:
+    desc: Build the release binary (embeds the UI)
+    cmds:
+      - cargo build --release
+
+  build-ui:
+    desc: Build the frontend only (outputs to ui/build/)
+    dir: ui
+    cmds:
+      - bun run build
+
+  run:
+    desc: Build and run the release binary
+    deps: [build]
+    cmds:
+      - ./target/release/maxio --address {{.HOST}} --data-dir {{.DATA_DIR}} --port {{.PORT}}
+
+  test:
+    desc: Run the Rust unit + integration test suite
+    cmds:
+      - cargo test
+
+  check:
+    desc: Type-check the frontend (svelte-check)
+    dir: ui
+    cmds:
+      - bun run check
