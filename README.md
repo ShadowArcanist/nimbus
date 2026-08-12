@@ -75,7 +75,7 @@ cargo build --release
 docker run -d \
   -p 9000:9000 \
   -v $(pwd)/data:/data \
-  ghcr.io/coollabsio/maxio
+  ghcr.io/shadowarcanist/nimbus
 ```
 
 Or from Docker Hub:
@@ -84,7 +84,7 @@ Or from Docker Hub:
 docker run -d \
   -p 9000:9000 \
   -v $(pwd)/data:/data \
-  coollabsio/maxio
+  shadowarcanist/nimbus
 ```
 
 Configure with environment variables:
@@ -96,7 +96,7 @@ docker run -d \
   -e MAXIO_ACCESS_KEY=myadmin \
   -e MAXIO_SECRET_KEY=mysecret \
   -e MAXIO_DEFAULT_BUCKETS=my-bucket,logs,backups \
-  ghcr.io/coollabsio/maxio
+  ghcr.io/shadowarcanist/nimbus
 ```
 
 Docker Compose:
@@ -104,7 +104,7 @@ Docker Compose:
 ```yaml
 services:
   maxio:
-    image: ghcr.io/coollabsio/maxio
+    image: ghcr.io/shadowarcanist/nimbus
     ports:
       - "9000:9000"
     volumes:
