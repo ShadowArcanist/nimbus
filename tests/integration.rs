@@ -5,10 +5,10 @@
     clippy::manual_repeat_n
 )]
 
-use maxio::config::Config;
-use maxio::server::{self, AppState};
-use maxio::storage::filesystem::FilesystemStorage;
-use maxio::storage::keys::Keyring;
+use nimbus::config::Config;
+use nimbus::server::{self, AppState};
+use nimbus::storage::filesystem::FilesystemStorage;
+use nimbus::storage::keys::Keyring;
 use std::sync::Arc;
 use tempfile::TempDir;
 
@@ -52,7 +52,7 @@ async fn start_server() -> (String, TempDir) {
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
 
     let app = server::build_router(state);
@@ -174,7 +174,7 @@ async fn start_server_with_default_buckets(default_buckets: &str) -> (String, Te
         .await
         .unwrap();
 
-    maxio::storage::provision_default_buckets(&storage, default_buckets, REGION).await;
+    nimbus::storage::provision_default_buckets(&storage, default_buckets, REGION).await;
 
     let config = Config {
         port: 0,
@@ -196,7 +196,7 @@ async fn start_server_with_default_buckets(default_buckets: &str) -> (String, Te
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
 
     let app = server::build_router(state);
@@ -248,9 +248,9 @@ async fn test_default_buckets_skip_existing() {
         .unwrap();
 
     // First provision: creates the bucket
-    maxio::storage::provision_default_buckets(&storage, "existing", REGION).await;
+    nimbus::storage::provision_default_buckets(&storage, "existing", REGION).await;
     // Second provision: must be idempotent — no error, no duplicate
-    maxio::storage::provision_default_buckets(&storage, "existing", REGION).await;
+    nimbus::storage::provision_default_buckets(&storage, "existing", REGION).await;
 
     let config = Config {
         port: 0,
@@ -271,7 +271,7 @@ async fn test_default_buckets_skip_existing() {
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
     let app = server::build_router(state);
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -706,7 +706,7 @@ async fn test_ui_deep_link_uses_spa_fallback() {
         "no-store, must-revalidate"
     );
     let body = resp.text().await.unwrap();
-    assert!(body.contains("MaxIO"));
+    assert!(body.contains("Nimbus"));
 }
 
 #[tokio::test]
@@ -904,7 +904,7 @@ async fn test_delete_bucket_sweeps_nested_versions() {
         .unwrap();
 
     storage
-        .create_bucket(&maxio::storage::BucketMeta {
+        .create_bucket(&nimbus::storage::BucketMeta {
             name: "leftover".to_string(),
             created_at: "2026-04-16T00:00:00.000Z".to_string(),
             region: "us-east-1".to_string(),
@@ -2983,7 +2983,7 @@ async fn start_server_ec() -> (String, TempDir) {
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
 
     let app = server::build_router(state);
@@ -3440,7 +3440,7 @@ async fn start_server_parity(parity_shards: u32) -> (String, TempDir) {
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
 
     let app = server::build_router(state);
@@ -4643,7 +4643,7 @@ async fn test_put_bucket_encryption_kms_rejected() {
 /// Keyring rotate: old objects stay decryptable, new objects use the new key.
 #[tokio::test]
 async fn test_keyring_rotate_preserves_old_objects() {
-    use maxio::storage::keys;
+    use nimbus::storage::keys;
 
     let (base_url, tmp) = start_server().await;
     let data_dir = tmp.path().to_str().unwrap().to_string();
@@ -6114,7 +6114,7 @@ async fn start_server_ec_parity(chunk_size: u64, parity_shards: u32) -> (String,
     let state = AppState {
         storage: Arc::new(storage),
         config: Arc::new(config),
-        login_rate_limiter: Arc::new(maxio::api::console::LoginRateLimiter::new()),
+        login_rate_limiter: Arc::new(nimbus::api::console::LoginRateLimiter::new()),
     };
 
     let app = server::build_router(state);

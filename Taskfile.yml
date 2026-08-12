@@ -50,7 +50,7 @@ tasks:
     desc: Build and run the release binary
     deps: [build]
     cmds:
-      - ./target/release/maxio --address {{.HOST}} --data-dir {{.DATA_DIR}} --port {{.PORT}}
+      - ./target/release/nimbus --address {{.HOST}} --data-dir {{.DATA_DIR}} --port {{.PORT}}
 
   test:
     desc: Run the Rust unit + integration test suite

@@ -38,7 +38,7 @@ use tracing_subscriber::EnvFilter;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "maxio",
+    name = "nimbus",
     about = "S3-compatible object storage server",
     version = env!("CARGO_PKG_VERSION")
 )]
@@ -254,7 +254,7 @@ async fn run_healthcheck(url: &str, timeout_ms: u64) -> anyhow::Result<()> {
         .map_err(|_| anyhow::anyhow!("healthcheck connect timeout after {}ms", timeout_ms))??;
 
     let request = format!(
-        "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\nUser-Agent: maxio-healthcheck/{}\r\n\r\n",
+        "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\nUser-Agent: nimbus-healthcheck/{}\r\n\r\n",
         path_and_query,
         host,
         env!("CARGO_PKG_VERSION")

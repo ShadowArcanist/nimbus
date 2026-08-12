@@ -1097,48 +1097,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
 
 [[package]]
-name = "maxio"
-version = "0.4.2"
-dependencies = [
- "aes-gcm",
- "anyhow",
- "axum",
- "base64",
- "bytes",
- "chrono",
- "clap",
- "crc32c",
- "crc32fast",
- "futures",
- "hex",
- "hmac",
- "http",
- "hyper",
- "md-5",
- "mime_guess",
- "percent-encoding",
- "quick-xml",
- "rand",
- "reed-solomon-erasure",
- "reqwest",
- "rust-embed",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "tempfile",
- "thiserror",
- "tokio",
- "tokio-util",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
- "zeroize",
-]
-
-[[package]]
 name = "md-5"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1196,6 +1154,48 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "tempfile",
+]
+
+[[package]]
+name = "nimbus"
+version = "0.4.2"
+dependencies = [
+ "aes-gcm",
+ "anyhow",
+ "axum",
+ "base64",
+ "bytes",
+ "chrono",
+ "clap",
+ "crc32c",
+ "crc32fast",
+ "futures",
+ "hex",
+ "hmac",
+ "http",
+ "hyper",
+ "md-5",
+ "mime_guess",
+ "percent-encoding",
+ "quick-xml",
+ "rand",
+ "reed-solomon-erasure",
+ "reqwest",
+ "rust-embed",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+ "zeroize",
 ]
 
 [[package]]

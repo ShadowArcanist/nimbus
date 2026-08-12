@@ -908,7 +908,7 @@ echo "--- Keyring rotate CLI tests ---"
 # Locate the maxio binary (script runs against a pre-started server, so the
 # binary path isn't passed in — try both debug and release).
 MAXIO_BIN=""
-for candidate in ./target/debug/maxio ./target/release/maxio; do
+for candidate in ./target/debug/nimbus ./target/release/nimbus; do
     if [ -x "$candidate" ]; then
         MAXIO_BIN="$candidate"
         break
@@ -916,7 +916,7 @@ for candidate in ./target/debug/maxio ./target/release/maxio; do
 done
 
 if [ -z "$MAXIO_BIN" ]; then
-    red "SKIP: keyring rotate tests (./target/debug/maxio and ./target/release/maxio not found)"
+    red "SKIP: keyring rotate tests (./target/debug/nimbus and ./target/release/nimbus not found)"
 else
     KEYRING_FILE="$DATA_DIR/.maxio-keys.json"
 

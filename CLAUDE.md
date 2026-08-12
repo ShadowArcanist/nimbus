@@ -16,7 +16,7 @@ Always spell the product name **MaxIO** (capital M, capital I, capital O). Never
 # Build frontend (optional — cargo build also builds and embeds it)
 # Build binary (build.rs runs the UI build and embeds it)
 cargo build --release
-./target/release/maxio --data-dir ./data --port 9000
+./target/release/nimbus --data-dir ./data --port 9000
 ```
 
 Environment variables: `MAXIO_PORT`, `MAXIO_ADDRESS`, `MAXIO_DATA_DIR`, `MAXIO_ACCESS_KEY` (aliases: `MINIO_ROOT_USER`, `MINIO_ACCESS_KEY`), `MAXIO_SECRET_KEY` (aliases: `MINIO_ROOT_PASSWORD`, `MINIO_SECRET_KEY`), `MAXIO_REGION` (aliases: `MINIO_REGION_NAME`, `MINIO_REGION`)
@@ -35,7 +35,7 @@ bun run build && cd ..
 # 3. Build optimized binary
 cargo build --release
 
-# Result: single binary at ./target/release/maxio
+# Result: single binary at ./target/release/nimbus
 # Copy it anywhere — no ui/build/ or other files needed at runtime
 ```
 
@@ -54,7 +54,7 @@ Defaults: port 9000, access/secret `maxioadmin`/`maxioadmin`, region `us-east-1`
 cargo test
 
 # 2. AWS CLI integration tests (start server, run tests, stop server)
-cargo build && RUST_LOG=info ./target/debug/maxio --data-dir /tmp/maxio-test --port 9876 &
+cargo build && RUST_LOG=info ./target/debug/nimbus --data-dir /tmp/maxio-test --port 9876 &
 ./tests/aws_cli_test.sh 9876 /tmp/maxio-test
 kill %1 && rm -rf /tmp/maxio-test
 ```
@@ -179,8 +179,8 @@ MaxIO supports **SSE-S3** (server-managed keys) and **SSE-C** (customer-supplied
 |---|---|
 | Bootstrap | First server start auto-generates a 32-byte master key in `<data-dir>/.maxio-keys.json` (file mode 0600 on Unix). Back this file up — losing it makes all SSE-S3 objects unrecoverable |
 | Override | Set `MAXIO_MASTER_KEY` (or `--master-key`) to a base64-encoded 32-byte key. Bypasses the on-disk keyring file |
-| Rotation | `maxio keyring rotate --data-dir <dir>` generates a new active key and demotes the previous active key (retained so existing objects keep decrypting). Restart the server to begin encrypting new objects with the new key. Existing objects remain readable; they do not get rewritten |
-| Inspection | `maxio keyring list --data-dir <dir>` prints key ids, creation times, and active flag (never the raw key material) |
+| Rotation | `nimbus keyring rotate --data-dir <dir>` generates a new active key and demotes the previous active key (retained so existing objects keep decrypting). Restart the server to begin encrypting new objects with the new key. Existing objects remain readable; they do not get rewritten |
+| Inspection | `nimbus keyring list --data-dir <dir>` prints key ids, creation times, and active flag (never the raw key material) |
 | Windows | `0600` file mode is only enforced on Unix — on Windows, restrict ACLs manually or use full-disk encryption |
 
 #### Backup & Recovery

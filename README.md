@@ -66,7 +66,7 @@ After optimization (MaxIO >= 0.3.2)
 cargo build --release
 
 # Run
-./target/release/maxio --data-dir ./data --port 9000
+./target/release/nimbus --data-dir ./data --port 9000
 ```
 
 ### Docker
@@ -103,12 +103,12 @@ Docker Compose:
 
 ```yaml
 services:
-  maxio:
+  nimbus:
     image: ghcr.io/shadowarcanist/nimbus
     ports:
       - "9000:9000"
     volumes:
-      - maxio-data:/data
+      - nimbus-data:/data
     environment:
       - MAXIO_ACCESS_KEY=maxioadmin
       - MAXIO_SECRET_KEY=maxioadmin

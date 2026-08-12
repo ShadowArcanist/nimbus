@@ -104,7 +104,7 @@ jobs:
           PYV
           )"
           ARCHIVE="${{ matrix.artifact }}-${VERSION}.tar.gz"
-          cp target/${{ matrix.target }}/release/maxio nimbus
+          cp target/${{ matrix.target }}/release/nimbus nimbus
           tar czf "${ARCHIVE}" nimbus
           echo "ARCHIVE=${ARCHIVE}" >> $GITHUB_ENV
 

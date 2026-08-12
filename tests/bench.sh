@@ -7,7 +7,7 @@ set -euo pipefail
 #   --scenarios=all      Comma-separated: put-small,put-med,put-large,get-small,get-med,mixed,multipart
 #   --maxio-host=HOST    Use external MaxIO (skip starting server)
 #   --minio-host=HOST    Use external MinIO (skip starting server)
-#   --maxio-bin=PATH     Path to maxio binary (default: ./maxio or ./target/release/maxio)
+#   --maxio-bin=PATH     Path to maxio binary (default: ./nimbus or ./target/release/nimbus)
 #   --help               Show this help
 
 DURATION="30s"
@@ -144,10 +144,10 @@ ensure_maxio() {
         return
     fi
     # Check common locations (cwd, cargo target)
-    if [ -f ./maxio ]; then
-        MAXIO_BIN="./maxio"
-    elif [ -f ./target/release/maxio ]; then
-        MAXIO_BIN="./target/release/maxio"
+    if [ -f ./nimbus ]; then
+        MAXIO_BIN="./nimbus"
+    elif [ -f ./target/release/nimbus ]; then
+        MAXIO_BIN="./target/release/nimbus"
     else
         # Always download latest release from GitHub (don't cache — version matters)
         mkdir -p "$BIN_DIR"
@@ -166,15 +166,15 @@ ensure_maxio() {
         esac
         # Get latest release tag via GitHub API
         local tag
-        tag=$(curl -fsSL "https://api.github.com/repos/coollabsio/maxio/releases/latest" \
+        tag=$(curl -fsSL "https://api.github.com/repos/ShadowArcanist/nimbus/releases/latest" \
             | grep '"tag_name"' | cut -d'"' -f4)
         local version="${tag#v}"
-        url="https://github.com/coollabsio/maxio/releases/download/${tag}/maxio-${os_name}-${arch}-${version}.tar.gz"
+        url="https://github.com/ShadowArcanist/nimbus/releases/download/${tag}/nimbus-${os_name}-${arch}-${version}.tar.gz"
         curl -fsSL "$url" | tar xz -C "$BIN_DIR" 2>/dev/null
-        chmod +x "$BIN_DIR/maxio"
-        MAXIO_BIN="$BIN_DIR/maxio"
+        chmod +x "$BIN_DIR/nimbus"
+        MAXIO_BIN="$BIN_DIR/nimbus"
         export PATH="$BIN_DIR:$PATH"
-        green "  maxio $version downloaded"
+        green "  nimbus $version downloaded"
     fi
 }
 

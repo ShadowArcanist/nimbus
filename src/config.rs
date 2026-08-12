@@ -103,7 +103,7 @@ mod tests {
             std::env::remove_var("MAXIO_ADDRESS");
         }
 
-        let cli = TestCli::parse_from(["maxio"]);
+        let cli = TestCli::parse_from(["nimbus"]);
 
         assert_eq!(cli.config.address, "0.0.0.0");
     }

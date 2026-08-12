@@ -1,11 +1,11 @@
 [package]
-name = "maxio"
+name = "nimbus"
 version = "0.4.2"
 edition = "2024"
 description = "S3-compatible object storage server — single-binary replacement for MinIO"
 license = "Apache-2.0"
-repository = "https://github.com/coollabsio/maxio"
-authors = ["MaxIO Contributors"]
+repository = "https://github.com/ShadowArcanist/nimbus"
+authors = ["Nimbus Contributors"]
 keywords = ["s3", "object-storage", "minio", "storage", "server"]
 categories = ["web-programming::http-server", "filesystem"]
 

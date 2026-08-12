@@ -20,18 +20,18 @@ FROM debian:bookworm-slim AS runtime
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
   && rm -rf /var/lib/apt/lists/* \
-  && useradd --system --create-home --home-dir /nonexistent --shell /usr/sbin/nologin maxio \
+  && useradd --system --create-home --home-dir /nonexistent --shell /usr/sbin/nologin nimbus \
   && mkdir -p /data \
-  && chown -R maxio:maxio /data
+  && chown -R nimbus:nimbus /data
 
-COPY --from=builder /app/target/release/maxio /usr/local/bin/maxio
+COPY --from=builder /app/target/release/nimbus /usr/local/bin/nimbus
 
 ENV MAXIO_DATA_DIR="/data"
 EXPOSE 9000
 VOLUME ["/data"]
-USER maxio:maxio
+USER nimbus:nimbus
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD ["maxio", "healthcheck", "--url", "http://127.0.0.1:9000/healthz", "--timeout-ms", "2000"]
+  CMD ["nimbus", "healthcheck", "--url", "http://127.0.0.1:9000/healthz", "--timeout-ms", "2000"]
 
-ENTRYPOINT ["maxio"]
+ENTRYPOINT ["nimbus"]
 CMD ["serve"]
