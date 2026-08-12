@@ -30,13 +30,13 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             runner: ubuntu-latest
-            artifact: maxio-linux-amd64
+            artifact: nimbus-linux-amd64
           - target: aarch64-unknown-linux-gnu
             runner: ubuntu-latest
-            artifact: maxio-linux-arm64
+            artifact: nimbus-linux-arm64
           - target: aarch64-apple-darwin
             runner: macos-latest
-            artifact: maxio-macos-arm64
+            artifact: nimbus-macos-arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -104,8 +104,8 @@ jobs:
           PYV
           )"
           ARCHIVE="${{ matrix.artifact }}-${VERSION}.tar.gz"
-          cp target/${{ matrix.target }}/release/maxio maxio
-          tar czf "${ARCHIVE}" maxio
+          cp target/${{ matrix.target }}/release/maxio nimbus
+          tar czf "${ARCHIVE}" nimbus
           echo "ARCHIVE=${ARCHIVE}" >> $GITHUB_ENV
 
       - name: Upload artifact
@@ -228,7 +228,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: maxio-*
+          pattern: nimbus-*
           merge-multiple: true
 
       - name: Create GitHub Release
