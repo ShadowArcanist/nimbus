@@ -1,6 +1,6 @@
 <div align="center">
 
-# MaxIO
+# Nimbus
 
 S3-compatible object storage server — single-binary replacement for MinIO.
 
@@ -10,9 +10,9 @@ Rust · Axum · Svelte 5 · Tailwind CSS v4 · shadcn-svelte
 
 ## About the Project
 
-> **Warning:** MaxIO is under active development. Do not use it in production yet.
+> **Warning:** Nimbus is under active development. Do not use it in production yet.
 
-MaxIO is a lightweight, single-binary S3-compatible object storage server written in Rust. No JVM, no database, no runtime dependencies — just one binary and a data directory. Buckets are directories, objects are files. Back up by copying the data dir.
+Nimbus is a lightweight, single-binary S3-compatible object storage server written in Rust. No JVM, no database, no runtime dependencies — just one binary and a data directory. Buckets are directories, objects are files. Back up by copying the data dir.
 
 ## Features
 
@@ -27,13 +27,13 @@ MaxIO is a lightweight, single-binary S3-compatible object storage server writte
 - **Checksum Verification** — CRC32, CRC32C, SHA-1, and SHA-256 checksums on upload with automatic validation and persistent storage
 - **Erasure Coding** — Optional chunked storage with per-chunk SHA-256 integrity verification and Reed-Solomon parity for automatic recovery from corrupted or missing data
 
-## Benchmarks MaxIO vs MinIO
+## Benchmarks Nimbus vs MinIO
 
 Hetzner CCX13 (./tests/bench-remote.sh <remote server>)
 
-Before optimization (MaxIO <0.3.2)
+Before optimization (Nimbus <0.3.2)
 
-| Scenario | MaxIO | MinIO |
+| Scenario | Nimbus | MinIO |
 |----------|-------|-------|
 | PUT 4KiB         | 14.66 MiB/s, 3753.64 obj/s | 4.60 MiB/s, 1178.18 obj/s |
 | PUT 1MiB         | 337.18 MiB/s, 337.18 obj/s | 214.06 MiB/s, 214.06 obj/s |
@@ -43,9 +43,9 @@ Before optimization (MaxIO <0.3.2)
 | Mixed 1MiB       | 275.17 MiB/s, 366.98 obj/s | 339.91 MiB/s, 453.40 obj/s |
 | Multipart 100MiB | 451.29 MiB/s, 45.13 obj/s | 1888.60 MiB/s, 188.86 obj/s |
 
-After optimization (MaxIO >= 0.3.2)
+After optimization (Nimbus >= 0.3.2)
 
-| Scenario | MaxIO | MinIO |
+| Scenario | Nimbus | MinIO |
 |----------|-------|-------|
 | PUT 4KiB         | 12.59 MiB/s, 3221.82 obj/s | 3.81 MiB/s, 975.72 obj/s |
 | PUT 1MiB         | 348.93 MiB/s, 348.93 obj/s | 207.11 MiB/s, 207.11 obj/s |
@@ -93,9 +93,9 @@ Configure with environment variables:
 docker run -d \
   -p 9000:9000 \
   -v $(pwd)/data:/data \
-  -e MAXIO_ACCESS_KEY=myadmin \
-  -e MAXIO_SECRET_KEY=mysecret \
-  -e MAXIO_DEFAULT_BUCKETS=my-bucket,logs,backups \
+  -e NIMBUS_ACCESS_KEY=myadmin \
+  -e NIMBUS_SECRET_KEY=mysecret \
+  -e NIMBUS_DEFAULT_BUCKETS=my-bucket,logs,backups \
   ghcr.io/shadowarcanist/nimbus
 ```
 
@@ -110,57 +110,57 @@ services:
     volumes:
       - nimbus-data:/data
     environment:
-      - MAXIO_ACCESS_KEY=maxioadmin
-      - MAXIO_SECRET_KEY=maxioadmin
+      - NIMBUS_ACCESS_KEY=nimbusadmin
+      - NIMBUS_SECRET_KEY=nimbusadmin
 ```
 
 ```bash
 docker compose up -d
 ```
 
-Open `http://localhost:9000/ui/` in your browser. Default credentials: `maxioadmin` / `maxioadmin`
+Open `http://localhost:9000/ui/` in your browser. Default credentials: `nimbusadmin` / `nimbusadmin`
 
 ## Configuration
 
 | Variable | CLI Flag | Default | Description |
 |---|---|---|---|
-| `MAXIO_PORT` | `--port` | `9000` | Listen port |
-| `MAXIO_ADDRESS` | `--address` | `0.0.0.0` | Bind address |
-| `MAXIO_DATA_DIR` | `--data-dir` | `./data` | Storage directory |
-| `MAXIO_ACCESS_KEY` | `--access-key` | `maxioadmin` | Access key (aliases: `MINIO_ROOT_USER`, `MINIO_ACCESS_KEY`) |
-| `MAXIO_SECRET_KEY` | `--secret-key` | `maxioadmin` | Secret key (aliases: `MINIO_ROOT_PASSWORD`, `MINIO_SECRET_KEY`) |
-| `MAXIO_REGION` | `--region` | `us-east-1` | S3 region (aliases: `MINIO_REGION_NAME`, `MINIO_REGION`) |
-| `MAXIO_ALLOW_INSECURE_DEV` | `--allow-insecure-dev` | `false` | Allow insecure development defaults, including default credentials and HTTP console cookies |
-| `MAXIO_SECURE_COOKIES` | `--secure-cookies` | `true` | Force `Secure` on console session cookies; keep enabled for public consoles |
-| `MAXIO_ERASURE_CODING` | `--erasure-coding` | `false` | Enable erasure coding with per-chunk integrity checksums |
-| `MAXIO_CHUNK_SIZE` | `--chunk-size` | `10485760` (10MB) | Chunk size in bytes for erasure coding |
-| `MAXIO_PARITY_SHARDS` | `--parity-shards` | `0` | Number of parity shards per object (requires `--erasure-coding`, 0 = no parity) |
-| `MAXIO_MASTER_KEY` | `--master-key` | _(auto-generated)_ | Base64-encoded 32-byte SSE-S3 master key. If unset, a key is generated and stored under `<data-dir>/.maxio-keys.json`. Provide explicitly to control key rotation |
-| `MAXIO_DEFAULT_BUCKETS` | `--default-buckets` | _(none)_ | Comma-separated list of bucket names to create during startup (aliases: `MINIO_DEFAULT_BUCKETS`) |
-| `MAXIO_MAX_CONSOLE_BODY_BYTES` | `--max-console-body-bytes` | `1048576` | Max request body size for console JSON/form API routes; object uploads are streaming and not covered by this limit |
-| `MAXIO_HEALTHCHECK_URL` | `healthcheck --url` | `http://127.0.0.1:9000/healthz` | Healthcheck endpoint URL; default port follows `MAXIO_PORT` when set |
-| `MAXIO_HEALTHCHECK_TIMEOUT_MS` | `healthcheck --timeout-ms` | `2000` | Healthcheck connect/read timeout in milliseconds |
+| `NIMBUS_PORT` | `--port` | `9000` | Listen port |
+| `NIMBUS_ADDRESS` | `--address` | `0.0.0.0` | Bind address |
+| `NIMBUS_DATA_DIR` | `--data-dir` | `./data` | Storage directory |
+| `NIMBUS_ACCESS_KEY` | `--access-key` | `nimbusadmin` | Access key (aliases: `MINIO_ROOT_USER`, `MINIO_ACCESS_KEY`) |
+| `NIMBUS_SECRET_KEY` | `--secret-key` | `nimbusadmin` | Secret key (aliases: `MINIO_ROOT_PASSWORD`, `MINIO_SECRET_KEY`) |
+| `NIMBUS_REGION` | `--region` | `us-east-1` | S3 region (aliases: `MINIO_REGION_NAME`, `MINIO_REGION`) |
+| `NIMBUS_ALLOW_INSECURE_DEV` | `--allow-insecure-dev` | `false` | Allow insecure development defaults, including default credentials and HTTP console cookies |
+| `NIMBUS_SECURE_COOKIES` | `--secure-cookies` | `true` | Force `Secure` on console session cookies; keep enabled for public consoles |
+| `NIMBUS_ERASURE_CODING` | `--erasure-coding` | `false` | Enable erasure coding with per-chunk integrity checksums |
+| `NIMBUS_CHUNK_SIZE` | `--chunk-size` | `10485760` (10MB) | Chunk size in bytes for erasure coding |
+| `NIMBUS_PARITY_SHARDS` | `--parity-shards` | `0` | Number of parity shards per object (requires `--erasure-coding`, 0 = no parity) |
+| `NIMBUS_MASTER_KEY` | `--master-key` | _(auto-generated)_ | Base64-encoded 32-byte SSE-S3 master key. If unset, a key is generated and stored under `<data-dir>/.maxio-keys.json`. Provide explicitly to control key rotation |
+| `NIMBUS_DEFAULT_BUCKETS` | `--default-buckets` | _(none)_ | Comma-separated list of bucket names to create during startup (aliases: `MINIO_DEFAULT_BUCKETS`) |
+| `NIMBUS_MAX_CONSOLE_BODY_BYTES` | `--max-console-body-bytes` | `1048576` | Max request body size for console JSON/form API routes; object uploads are streaming and not covered by this limit |
+| `NIMBUS_HEALTHCHECK_URL` | `healthcheck --url` | `http://127.0.0.1:9000/healthz` | Healthcheck endpoint URL; default port follows `NIMBUS_PORT` when set |
+| `NIMBUS_HEALTHCHECK_TIMEOUT_MS` | `healthcheck --timeout-ms` | `2000` | Healthcheck connect/read timeout in milliseconds |
 
 ## Usage
 
 ### MinIO Client (mc)
 
 ```bash
-mc alias set maxio http://localhost:9000 maxioadmin maxioadmin
+mc alias set nimbus http://localhost:9000 nimbusadmin nimbusadmin
 
-mc mb maxio/my-bucket
-mc cp file.txt maxio/my-bucket/file.txt
-mc ls maxio/my-bucket/
-mc cat maxio/my-bucket/file.txt
-mc rm maxio/my-bucket/file.txt
-mc rb maxio/my-bucket
+mc mb nimbus/my-bucket
+mc cp file.txt nimbus/my-bucket/file.txt
+mc ls nimbus/my-bucket/
+mc cat nimbus/my-bucket/file.txt
+mc rm nimbus/my-bucket/file.txt
+mc rb nimbus/my-bucket
 ```
 
 ### AWS CLI
 
 ```bash
-export AWS_ACCESS_KEY_ID=maxioadmin
-export AWS_SECRET_ACCESS_KEY=maxioadmin
+export AWS_ACCESS_KEY_ID=nimbusadmin
+export AWS_SECRET_ACCESS_KEY=nimbusadmin
 
 aws --endpoint-url http://localhost:9000 s3 mb s3://my-bucket
 aws --endpoint-url http://localhost:9000 s3 cp file.txt s3://my-bucket/file.txt

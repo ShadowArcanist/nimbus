@@ -1,10 +1,10 @@
-# MaxIO
+# Nimbus
 
 S3-compatible object storage server written in Rust. Single-binary replacement for MinIO.
 
 ## Naming Convention
 
-Always spell the product name **MaxIO** (capital M, capital I, capital O). Never use "Maxio", "maxio", or "MAXIO" in prose. Lowercase `maxio` is acceptable only for CLI binary names, environment variable prefixes (`MAXIO_`), mc aliases, and code identifiers.
+Always spell the product name **Nimbus** (capital N). Never use "nimbus" or "NIMBUS" in prose. Lowercase `nimbus` is acceptable only for CLI binary names, mc aliases, and code identifiers; the environment variable prefix is `NIMBUS_`.
 
 ## User Preferences
 
@@ -19,7 +19,7 @@ cargo build --release
 ./target/release/nimbus --data-dir ./data --port 9000
 ```
 
-Environment variables: `MAXIO_PORT`, `MAXIO_ADDRESS`, `MAXIO_DATA_DIR`, `MAXIO_ACCESS_KEY` (aliases: `MINIO_ROOT_USER`, `MINIO_ACCESS_KEY`), `MAXIO_SECRET_KEY` (aliases: `MINIO_ROOT_PASSWORD`, `MINIO_SECRET_KEY`), `MAXIO_REGION` (aliases: `MINIO_REGION_NAME`, `MINIO_REGION`)
+Environment variables: `NIMBUS_PORT`, `NIMBUS_ADDRESS`, `NIMBUS_DATA_DIR`, `NIMBUS_ACCESS_KEY` (aliases: `MINIO_ROOT_USER`, `MINIO_ACCESS_KEY`), `NIMBUS_SECRET_KEY` (aliases: `MINIO_ROOT_PASSWORD`, `MINIO_SECRET_KEY`), `NIMBUS_REGION` (aliases: `MINIO_REGION_NAME`, `MINIO_REGION`)
 
 ## Production Build
 
@@ -41,7 +41,7 @@ cargo build --release
 
 The binary serves the web console at `/ui/` with proper MIME types, ETags, and cache headers (immutable for hashed assets, no-store for `200.html` / HTML shell).
 
-Defaults: port 9000, access/secret `maxioadmin`/`maxioadmin`, region `us-east-1`
+Defaults: port 9000, access/secret `nimbusadmin`/`nimbusadmin`, region `us-east-1`
 
 ## Development Workflow
 
@@ -54,9 +54,9 @@ Defaults: port 9000, access/secret `maxioadmin`/`maxioadmin`, region `us-east-1`
 cargo test
 
 # 2. AWS CLI integration tests (start server, run tests, stop server)
-cargo build && RUST_LOG=info ./target/debug/nimbus --data-dir /tmp/maxio-test --port 9876 &
-./tests/aws_cli_test.sh 9876 /tmp/maxio-test
-kill %1 && rm -rf /tmp/maxio-test
+cargo build && RUST_LOG=info ./target/debug/nimbus --data-dir /tmp/nimbus-test --port 9876 &
+./tests/aws_cli_test.sh 9876 /tmp/nimbus-test
+kill %1 && rm -rf /tmp/nimbus-test
 ```
 
 **Hot-reload dev server** (for manual testing):
@@ -165,7 +165,7 @@ This runs both processes concurrently (Ctrl+C kills both):
 
 ### Server-Side Encryption (SSE)
 
-MaxIO supports **SSE-S3** (server-managed keys) and **SSE-C** (customer-supplied keys) using AES-256-GCM with per-frame nonces (65,536-byte chunks). SSE-KMS is intentionally not supported and rejected with `InvalidEncryptionAlgorithm`.
+Nimbus supports **SSE-S3** (server-managed keys) and **SSE-C** (customer-supplied keys) using AES-256-GCM with per-frame nonces (65,536-byte chunks). SSE-KMS is intentionally not supported and rejected with `InvalidEncryptionAlgorithm`.
 
 - **Per-object DEK**: Each object gets a fresh 256-bit Data Encryption Key. For SSE-S3, the DEK is wrapped by the active master key (AES-256-GCM) and stored alongside the object metadata. For SSE-C, the DEK is wrapped by the customer-supplied key submitted on every read.
 - **Sidecar integrity**: HMAC-SHA256 binds encryption metadata (key id, wrapped DEK, nonce prefix) to the object — tampering with the sidecar causes decryption to fail.
@@ -178,7 +178,7 @@ MaxIO supports **SSE-S3** (server-managed keys) and **SSE-C** (customer-supplied
 | Concern | Behavior |
 |---|---|
 | Bootstrap | First server start auto-generates a 32-byte master key in `<data-dir>/.maxio-keys.json` (file mode 0600 on Unix). Back this file up — losing it makes all SSE-S3 objects unrecoverable |
-| Override | Set `MAXIO_MASTER_KEY` (or `--master-key`) to a base64-encoded 32-byte key. Bypasses the on-disk keyring file |
+| Override | Set `NIMBUS_MASTER_KEY` (or `--master-key`) to a base64-encoded 32-byte key. Bypasses the on-disk keyring file |
 | Rotation | `nimbus keyring rotate --data-dir <dir>` generates a new active key and demotes the previous active key (retained so existing objects keep decrypting). Restart the server to begin encrypting new objects with the new key. Existing objects remain readable; they do not get rewritten |
 | Inspection | `nimbus keyring list --data-dir <dir>` prints key ids, creation times, and active flag (never the raw key material) |
 | Windows | `0600` file mode is only enforced on Unix — on Windows, restrict ACLs manually or use full-disk encryption |
@@ -198,34 +198,34 @@ All `fetch` catch blocks in UI components log errors via `console.error` with co
 brew install minio/stable/mc
 
 # Configure alias
-mc alias set maxio http://localhost:9000 maxioadmin maxioadmin
+mc alias set nimbus http://localhost:9000 nimbusadmin nimbusadmin
 
 # Bucket operations
-mc mb maxio/test-bucket
-mc ls maxio/
+mc mb nimbus/test-bucket
+mc ls nimbus/
 
 # Upload / download
-echo "hello maxio" > /tmp/test.txt
-mc cp /tmp/test.txt maxio/test-bucket/test.txt
-mc ls maxio/test-bucket/
-mc cat maxio/test-bucket/test.txt
-mc cp maxio/test-bucket/test.txt /tmp/downloaded.txt
+echo "hello nimbus" > /tmp/test.txt
+mc cp /tmp/test.txt nimbus/test-bucket/test.txt
+mc ls nimbus/test-bucket/
+mc cat nimbus/test-bucket/test.txt
+mc cp nimbus/test-bucket/test.txt /tmp/downloaded.txt
 
 # Nested keys
-mc cp /tmp/test.txt maxio/test-bucket/folder/nested/file.txt
-mc ls maxio/test-bucket/folder/
+mc cp /tmp/test.txt nimbus/test-bucket/folder/nested/file.txt
+mc ls nimbus/test-bucket/folder/
 
 # Cleanup
-mc rm maxio/test-bucket/test.txt
-mc rm maxio/test-bucket/folder/nested/file.txt
-mc rb maxio/test-bucket
+mc rm nimbus/test-bucket/test.txt
+mc rm nimbus/test-bucket/folder/nested/file.txt
+mc rb nimbus/test-bucket
 ```
 
 ### Testing with AWS CLI
 
 ```bash
-export AWS_ACCESS_KEY_ID=maxioadmin
-export AWS_SECRET_ACCESS_KEY=maxioadmin
+export AWS_ACCESS_KEY_ID=nimbusadmin
+export AWS_SECRET_ACCESS_KEY=nimbusadmin
 aws --endpoint-url http://localhost:9000 s3 mb s3://test-bucket
 aws --endpoint-url http://localhost:9000 s3 cp file.txt s3://test-bucket/file.txt
 aws --endpoint-url http://localhost:9000 s3 ls s3://test-bucket/
@@ -244,9 +244,9 @@ cargo test
 ./tests/aws_cli_test.sh
 ```
 
-### Benchmarking (MaxIO vs MinIO)
+### Benchmarking (Nimbus vs MinIO)
 
-Uses [WARP](https://github.com/minio/warp) to compare MaxIO against MinIO across 7 scenarios: PUT (4KiB/1MiB/64MiB), GET (4KiB/1MiB), mixed workload, and multipart uploads. Prerequisites: `brew install minio-warp` and `brew install minio/stable/minio`.
+Uses [WARP](https://github.com/minio/warp) to compare Nimbus against MinIO across 7 scenarios: PUT (4KiB/1MiB/64MiB), GET (4KiB/1MiB), mixed workload, and multipart uploads. Prerequisites: `brew install minio-warp` and `brew install minio/stable/minio`.
 
 ```bash
 # Full benchmark (starts both servers automatically)

@@ -26,7 +26,7 @@ RUN apt-get update \
 
 COPY --from=builder /app/target/release/nimbus /usr/local/bin/nimbus
 
-ENV MAXIO_DATA_DIR="/data"
+ENV NIMBUS_DATA_DIR="/data"
 EXPOSE 9000
 VOLUME ["/data"]
 USER nimbus:nimbus

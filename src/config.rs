@@ -8,12 +8,12 @@ fn first_env_value(keys: &[&str]) -> Option<String> {
 
 fn default_access_key() -> String {
     first_env_value(&["MINIO_ROOT_USER", "MINIO_ACCESS_KEY"])
-        .unwrap_or_else(|| "maxioadmin".to_string())
+        .unwrap_or_else(|| "nimbusadmin".to_string())
 }
 
 fn default_secret_key() -> String {
     first_env_value(&["MINIO_ROOT_PASSWORD", "MINIO_SECRET_KEY"])
-        .unwrap_or_else(|| "maxioadmin".to_string())
+        .unwrap_or_else(|| "nimbusadmin".to_string())
 }
 
 fn default_region() -> String {
@@ -28,61 +28,61 @@ fn default_default_buckets() -> Option<String> {
 #[derive(Args, Debug, Clone)]
 pub struct Config {
     /// Port to listen on
-    #[arg(long, env = "MAXIO_PORT", default_value = "9000")]
+    #[arg(long, env = "NIMBUS_PORT", default_value = "9000")]
     pub port: u16,
 
     /// Address to bind to
-    #[arg(long, env = "MAXIO_ADDRESS", default_value = "0.0.0.0")]
+    #[arg(long, env = "NIMBUS_ADDRESS", default_value = "0.0.0.0")]
     pub address: String,
 
     /// Root data directory
-    #[arg(long, env = "MAXIO_DATA_DIR", default_value = "./data")]
+    #[arg(long, env = "NIMBUS_DATA_DIR", default_value = "./data")]
     pub data_dir: String,
 
-    /// Access key (MAXIO_ACCESS_KEY, MINIO_ROOT_USER, MINIO_ACCESS_KEY)
-    #[arg(long, env = "MAXIO_ACCESS_KEY", default_value_t = default_access_key())]
+    /// Access key (NIMBUS_ACCESS_KEY, MINIO_ROOT_USER, MINIO_ACCESS_KEY)
+    #[arg(long, env = "NIMBUS_ACCESS_KEY", default_value_t = default_access_key())]
     pub access_key: String,
 
-    /// Secret key (MAXIO_SECRET_KEY, MINIO_ROOT_PASSWORD, MINIO_SECRET_KEY)
-    #[arg(long, env = "MAXIO_SECRET_KEY", default_value_t = default_secret_key())]
+    /// Secret key (NIMBUS_SECRET_KEY, MINIO_ROOT_PASSWORD, MINIO_SECRET_KEY)
+    #[arg(long, env = "NIMBUS_SECRET_KEY", default_value_t = default_secret_key())]
     pub secret_key: String,
 
-    /// Default region (MAXIO_REGION, MINIO_REGION_NAME, MINIO_REGION)
-    #[arg(long, env = "MAXIO_REGION", default_value_t = default_region())]
+    /// Default region (NIMBUS_REGION, MINIO_REGION_NAME, MINIO_REGION)
+    #[arg(long, env = "NIMBUS_REGION", default_value_t = default_region())]
     pub region: String,
 
     /// Master key for SSE-S3 encryption (base64-encoded 32 bytes).
     /// When set, takes precedence over the keyring file for new writes.
-    #[arg(long, env = "MAXIO_MASTER_KEY")]
+    #[arg(long, env = "NIMBUS_MASTER_KEY")]
     pub master_key: Option<String>,
 
     /// Allow insecure development defaults (default credentials, HTTP cookies).
-    #[arg(long, env = "MAXIO_ALLOW_INSECURE_DEV", default_value = "false")]
+    #[arg(long, env = "NIMBUS_ALLOW_INSECURE_DEV", default_value = "false")]
     pub allow_insecure_dev: bool,
 
     /// Force Secure on console session cookies. Keep enabled for public consoles.
-    #[arg(long, env = "MAXIO_SECURE_COOKIES", default_value = "true")]
+    #[arg(long, env = "NIMBUS_SECURE_COOKIES", default_value = "true")]
     pub secure_cookies: bool,
 
     /// Enable erasure coding with per-chunk integrity checksums
-    #[arg(long, env = "MAXIO_ERASURE_CODING", default_value = "false")]
+    #[arg(long, env = "NIMBUS_ERASURE_CODING", default_value = "false")]
     pub erasure_coding: bool,
 
     /// Chunk size in bytes for erasure coding (default 10MB)
-    #[arg(long, env = "MAXIO_CHUNK_SIZE", default_value = "10485760")]
+    #[arg(long, env = "NIMBUS_CHUNK_SIZE", default_value = "10485760")]
     pub chunk_size: u64,
 
     /// Number of parity shards for erasure coding (0 = no parity, requires --erasure-coding)
-    #[arg(long, env = "MAXIO_PARITY_SHARDS", default_value = "0")]
+    #[arg(long, env = "NIMBUS_PARITY_SHARDS", default_value = "0")]
     pub parity_shards: u32,
 
     /// Comma-separated list of bucket names to create on first boot
-    /// (MAXIO_DEFAULT_BUCKETS, MINIO_DEFAULT_BUCKETS)
-    #[arg(long, env = "MAXIO_DEFAULT_BUCKETS", default_value_t = default_default_buckets().unwrap_or_default())]
+    /// (NIMBUS_DEFAULT_BUCKETS, MINIO_DEFAULT_BUCKETS)
+    #[arg(long, env = "NIMBUS_DEFAULT_BUCKETS", default_value_t = default_default_buckets().unwrap_or_default())]
     pub default_buckets: String,
 
     /// Max request body size for console JSON/form API routes, in bytes. Object uploads are streaming and not covered by this limit.
-    #[arg(long, env = "MAXIO_MAX_CONSOLE_BODY_BYTES", default_value = "1048576")]
+    #[arg(long, env = "NIMBUS_MAX_CONSOLE_BODY_BYTES", default_value = "1048576")]
     pub max_console_body_bytes: usize,
 }
 
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn default_address_is_all_interfaces() {
         unsafe {
-            std::env::remove_var("MAXIO_ADDRESS");
+            std::env::remove_var("NIMBUS_ADDRESS");
         }
 
         let cli = TestCli::parse_from(["nimbus"]);

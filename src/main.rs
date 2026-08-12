@@ -58,11 +58,11 @@ enum Commands {
     /// Check server health by sending an HTTP GET request
     Healthcheck {
         /// Healthcheck endpoint URL
-        #[arg(long, env = "MAXIO_HEALTHCHECK_URL", default_value_t = default_healthcheck_url())]
+        #[arg(long, env = "NIMBUS_HEALTHCHECK_URL", default_value_t = default_healthcheck_url())]
         url: String,
 
         /// Timeout in milliseconds for connect/read operations
-        #[arg(long, env = "MAXIO_HEALTHCHECK_TIMEOUT_MS", default_value = "2000")]
+        #[arg(long, env = "NIMBUS_HEALTHCHECK_TIMEOUT_MS", default_value = "2000")]
         timeout_ms: u64,
     },
 
@@ -78,20 +78,20 @@ enum KeyringCmd {
     /// Restart the server after rotating to pick up the new active key.
     Rotate {
         /// Data directory containing .maxio-keys.json
-        #[arg(long, env = "MAXIO_DATA_DIR", default_value = "./data")]
+        #[arg(long, env = "NIMBUS_DATA_DIR", default_value = "./data")]
         data_dir: String,
     },
 
     /// Print the keyring file contents (key ids + metadata, never the key
     /// material itself).
     List {
-        #[arg(long, env = "MAXIO_DATA_DIR", default_value = "./data")]
+        #[arg(long, env = "NIMBUS_DATA_DIR", default_value = "./data")]
         data_dir: String,
     },
 }
 
 fn default_healthcheck_url() -> String {
-    let port = std::env::var("MAXIO_PORT")
+    let port = std::env::var("NIMBUS_PORT")
         .ok()
         .and_then(|v| v.parse::<u16>().ok())
         .unwrap_or(9000);
@@ -122,12 +122,12 @@ async fn main() -> anyhow::Result<()> {
 
     let config = cli.config;
 
-    if config.access_key == "maxioadmin"
-        && config.secret_key == "maxioadmin"
+    if config.access_key == "nimbusadmin"
+        && config.secret_key == "nimbusadmin"
         && !config.allow_insecure_dev
     {
         anyhow::bail!(
-            "refusing to start with default credentials in production; set MAXIO_ACCESS_KEY/MAXIO_SECRET_KEY or use --allow-insecure-dev for local development"
+            "refusing to start with default credentials in production; set NIMBUS_ACCESS_KEY/NIMBUS_SECRET_KEY or use --allow-insecure-dev for local development"
         );
     }
 
@@ -145,7 +145,7 @@ async fn main() -> anyhow::Result<()> {
         );
     } else {
         tracing::info!(
-            "SSE-S3 keyring: active key id {} (from MAXIO_MASTER_KEY)",
+            "SSE-S3 keyring: active key id {} (from NIMBUS_MASTER_KEY)",
             keyring.active_id()
         );
     }
@@ -193,7 +193,7 @@ async fn main() -> anyhow::Result<()> {
 
     let addr = format!("{}:{}", config.address, config.port);
     let listener = tokio::net::TcpListener::bind(&addr).await?;
-    if config.access_key == "maxioadmin" && config.secret_key == "maxioadmin" {
+    if config.access_key == "nimbusadmin" && config.secret_key == "nimbusadmin" {
         tracing::warn!(
             "WARNING: Using default credentials because insecure development mode is enabled."
         );

@@ -12,19 +12,19 @@ set -euo pipefail
 
 DURATION="30s"
 SCENARIOS="all"
-MAXIO_HOST=""
+NIMBUS_HOST=""
 MINIO_HOST=""
-MAXIO_BIN=""
-MAXIO_PORT=9800
+NIMBUS_BIN=""
+NIMBUS_PORT=9800
 MINIO_PORT=9801
-ACCESS_KEY="maxioadmin"
-SECRET_KEY="maxioadmin"
+ACCESS_KEY="nimbusadmin"
+SECRET_KEY="nimbusadmin"
 OUTDIR=$(mktemp -d /tmp/maxio-bench-XXXXXX)
 RESULTS_FILE="$OUTDIR/results.md"
-MAXIO_DATA="$OUTDIR/maxio-data"
+NIMBUS_DATA="$OUTDIR/maxio-data"
 MINIO_DATA="$OUTDIR/minio-data"
 BIN_DIR="$HOME/.cache/maxio-bench/bin"
-MAXIO_PID=""
+NIMBUS_PID=""
 MINIO_PID=""
 
 # --- Colors ---
@@ -39,9 +39,9 @@ for arg in "$@"; do
     case "$arg" in
         --duration=*)  DURATION="${arg#*=}" ;;
         --scenarios=*) SCENARIOS="${arg#*=}" ;;
-        --maxio-host=*) MAXIO_HOST="${arg#*=}" ;;
+        --maxio-host=*) NIMBUS_HOST="${arg#*=}" ;;
         --minio-host=*) MINIO_HOST="${arg#*=}" ;;
-        --maxio-bin=*)  MAXIO_BIN="${arg#*=}" ;;
+        --maxio-bin=*)  NIMBUS_BIN="${arg#*=}" ;;
         --help)
             head -12 "$0" | tail -10
             exit 0
@@ -135,19 +135,19 @@ ensure_minio() {
 
 # --- Resolve or download maxio binary ---
 ensure_maxio() {
-    if [ -n "$MAXIO_HOST" ]; then return; fi
-    if [ -n "$MAXIO_BIN" ]; then
-        if [ ! -f "$MAXIO_BIN" ]; then
-            red "MaxIO binary not found: $MAXIO_BIN"
+    if [ -n "$NIMBUS_HOST" ]; then return; fi
+    if [ -n "$NIMBUS_BIN" ]; then
+        if [ ! -f "$NIMBUS_BIN" ]; then
+            red "MaxIO binary not found: $NIMBUS_BIN"
             exit 1
         fi
         return
     fi
     # Check common locations (cwd, cargo target)
     if [ -f ./nimbus ]; then
-        MAXIO_BIN="./nimbus"
+        NIMBUS_BIN="./nimbus"
     elif [ -f ./target/release/nimbus ]; then
-        MAXIO_BIN="./target/release/nimbus"
+        NIMBUS_BIN="./target/release/nimbus"
     else
         # Always download latest release from GitHub (don't cache — version matters)
         mkdir -p "$BIN_DIR"
@@ -172,7 +172,7 @@ ensure_maxio() {
         url="https://github.com/ShadowArcanist/nimbus/releases/download/${tag}/nimbus-${os_name}-${arch}-${version}.tar.gz"
         curl -fsSL "$url" | tar xz -C "$BIN_DIR" 2>/dev/null
         chmod +x "$BIN_DIR/nimbus"
-        MAXIO_BIN="$BIN_DIR/nimbus"
+        NIMBUS_BIN="$BIN_DIR/nimbus"
         export PATH="$BIN_DIR:$PATH"
         green "  nimbus $version downloaded"
     fi
@@ -186,9 +186,9 @@ ensure_maxio
 cleanup() {
     echo
     dim "Cleaning up..."
-    if [ -n "$MAXIO_PID" ] && kill -0 "$MAXIO_PID" 2>/dev/null; then
-        kill "$MAXIO_PID" 2>/dev/null || true
-        wait "$MAXIO_PID" 2>/dev/null || true
+    if [ -n "$NIMBUS_PID" ] && kill -0 "$NIMBUS_PID" 2>/dev/null; then
+        kill "$NIMBUS_PID" 2>/dev/null || true
+        wait "$NIMBUS_PID" 2>/dev/null || true
     fi
     if [ -n "$MINIO_PID" ] && kill -0 "$MINIO_PID" 2>/dev/null; then
         kill "$MINIO_PID" 2>/dev/null || true
@@ -231,16 +231,16 @@ wait_for_health() {
 
 # --- Start servers ---
 start_maxio() {
-    if [ -n "$MAXIO_HOST" ]; then
-        yellow "Using external MaxIO: $MAXIO_HOST"
+    if [ -n "$NIMBUS_HOST" ]; then
+        yellow "Using external MaxIO: $NIMBUS_HOST"
         return
     fi
-    check_port "$MAXIO_PORT"
-    mkdir -p "$MAXIO_DATA"
-    bold "Starting MaxIO on port $MAXIO_PORT..."
-    "$MAXIO_BIN" --data-dir "$MAXIO_DATA" --port "$MAXIO_PORT" &>/dev/null &
-    MAXIO_PID=$!
-    wait_for_health "http://localhost:$MAXIO_PORT/healthz" "MaxIO"
+    check_port "$NIMBUS_PORT"
+    mkdir -p "$NIMBUS_DATA"
+    bold "Starting MaxIO on port $NIMBUS_PORT..."
+    "$NIMBUS_BIN" --data-dir "$NIMBUS_DATA" --port "$NIMBUS_PORT" &>/dev/null &
+    NIMBUS_PID=$!
+    wait_for_health "http://localhost:$NIMBUS_PORT/healthz" "MaxIO"
 }
 
 start_minio() {
@@ -260,7 +260,7 @@ start_minio() {
 
 # --- Resolve hosts ---
 maxio_host() {
-    echo "${MAXIO_HOST:-localhost:$MAXIO_PORT}"
+    echo "${NIMBUS_HOST:-localhost:$NIMBUS_PORT}"
 }
 
 minio_host() {

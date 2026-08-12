@@ -13,8 +13,8 @@ TMPDIR=$(mktemp -d)
 PASS=0
 FAIL=0
 
-export AWS_ACCESS_KEY_ID=maxioadmin
-export AWS_SECRET_ACCESS_KEY=maxioadmin
+export AWS_ACCESS_KEY_ID=nimbusadmin
+export AWS_SECRET_ACCESS_KEY=nimbusadmin
 export AWS_DEFAULT_REGION=us-east-1
 
 AWS="aws --endpoint-url $ENDPOINT"
@@ -102,12 +102,12 @@ assert_eq "list buckets contains our bucket" "true" "$(echo "$OUTPUT" | grep -q 
 assert "head bucket" $AWS s3api head-bucket --bucket "$BUCKET"
 
 # --- Object operations ---
-echo "hello maxio" > "$TMPDIR/test.txt"
+echo "hello nimbus" > "$TMPDIR/test.txt"
 
 assert "upload object" $AWS s3 cp "$TMPDIR/test.txt" "s3://$BUCKET/test.txt"
 assert_file_exists "object file exists on disk" "$DATA_DIR/buckets/$BUCKET/test.txt"
 assert_file_exists "object meta exists on disk" "$DATA_DIR/buckets/$BUCKET/test.txt.meta.json"
-assert_eq "on-disk content matches" "hello maxio" "$(cat "$DATA_DIR/buckets/$BUCKET/test.txt")"
+assert_eq "on-disk content matches" "hello nimbus" "$(cat "$DATA_DIR/buckets/$BUCKET/test.txt")"
 
 # List objects
 OUTPUT=$($AWS s3 ls "s3://$BUCKET/" 2>&1)
@@ -115,7 +115,7 @@ assert_eq "list objects contains test.txt" "true" "$(echo "$OUTPUT" | grep -q "t
 
 # Download and verify
 assert "download object" $AWS s3 cp "s3://$BUCKET/test.txt" "$TMPDIR/downloaded.txt"
-assert_eq "content matches" "hello maxio" "$(cat "$TMPDIR/downloaded.txt")"
+assert_eq "content matches" "hello nimbus" "$(cat "$TMPDIR/downloaded.txt")"
 
 # Head object
 OUTPUT=$($AWS s3api head-object --bucket "$BUCKET" --key "test.txt" 2>&1)
@@ -131,7 +131,7 @@ OUTPUT=$($AWS s3 ls "s3://$BUCKET/folder/" 2>&1)
 assert_eq "list nested prefix" "true" "$(echo "$OUTPUT" | grep -q "nested" && echo true || echo false)"
 
 assert "download nested object" $AWS s3 cp "s3://$BUCKET/folder/nested/file.txt" "$TMPDIR/nested.txt"
-assert_eq "nested content matches" "hello maxio" "$(cat "$TMPDIR/nested.txt")"
+assert_eq "nested content matches" "hello nimbus" "$(cat "$TMPDIR/nested.txt")"
 
 # --- Multipart upload (large file) ---
 dd if=/dev/urandom of="$TMPDIR/big.bin" bs=1M count=15 status=none
@@ -177,14 +177,14 @@ assert_fail "list-parts after abort should fail" $AWS s3api list-parts --bucket 
 # --- Copy object ---
 assert "copy object same bucket" $AWS s3 cp "s3://$BUCKET/test.txt" "s3://$BUCKET/test-copy.txt"
 assert "download copied object" $AWS s3 cp "s3://$BUCKET/test-copy.txt" "$TMPDIR/copy.txt"
-assert_eq "copied content matches" "hello maxio" "$(cat "$TMPDIR/copy.txt")"
+assert_eq "copied content matches" "hello nimbus" "$(cat "$TMPDIR/copy.txt")"
 assert_file_exists "copied object on disk" "$DATA_DIR/buckets/$BUCKET/test-copy.txt"
 
 # Copy object via s3api
 OUTPUT=$($AWS s3api copy-object --bucket "$BUCKET" --key "api-copy.txt" --copy-source "$BUCKET/test.txt" 2>&1)
 assert_eq "copy-object has ETag" "true" "$(echo "$OUTPUT" | grep -q "ETag" && echo true || echo false)"
 assert "download api-copied object" $AWS s3 cp "s3://$BUCKET/api-copy.txt" "$TMPDIR/api-copy.txt"
-assert_eq "api-copied content matches" "hello maxio" "$(cat "$TMPDIR/api-copy.txt")"
+assert_eq "api-copied content matches" "hello nimbus" "$(cat "$TMPDIR/api-copy.txt")"
 
 # --- UploadPartCopy ---
 # Prepare a source object large enough to serve as multipart copy parts (5 MiB + 1 KiB)
@@ -907,15 +907,15 @@ echo "--- Keyring rotate CLI tests ---"
 
 # Locate the maxio binary (script runs against a pre-started server, so the
 # binary path isn't passed in — try both debug and release).
-MAXIO_BIN=""
+NIMBUS_BIN=""
 for candidate in ./target/debug/nimbus ./target/release/nimbus; do
     if [ -x "$candidate" ]; then
-        MAXIO_BIN="$candidate"
+        NIMBUS_BIN="$candidate"
         break
     fi
 done
 
-if [ -z "$MAXIO_BIN" ]; then
+if [ -z "$NIMBUS_BIN" ]; then
     red "SKIP: keyring rotate tests (./target/debug/nimbus and ./target/release/nimbus not found)"
 else
     KEYRING_FILE="$DATA_DIR/.maxio-keys.json"
@@ -940,12 +940,12 @@ else
     fi
 
     # `keyring list` before rotate shows one active key.
-    LIST_BEFORE=$("$MAXIO_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
+    LIST_BEFORE=$("$NIMBUS_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
     YES_COUNT_BEFORE=$(echo "$LIST_BEFORE" | awk 'NR>1 && $3=="yes"{n++} END{print n+0}')
     assert_eq "pre-rotate: exactly 1 active key" "1" "$YES_COUNT_BEFORE"
 
     # Run the rotate CLI.
-    ROTATE_OUT=$("$MAXIO_BIN" keyring rotate --data-dir "$DATA_DIR" 2>&1)
+    ROTATE_OUT=$("$NIMBUS_BIN" keyring rotate --data-dir "$DATA_DIR" 2>&1)
     if echo "$ROTATE_OUT" | grep -q "keyring rotated"; then
         green "PASS: rotate CLI output contains 'keyring rotated'"
         PASS=$((PASS + 1))
@@ -970,7 +970,7 @@ else
     fi
 
     # `keyring list` after: still exactly 1 active, total count is 2.
-    LIST_AFTER=$("$MAXIO_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
+    LIST_AFTER=$("$NIMBUS_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
     YES_COUNT_AFTER=$(echo "$LIST_AFTER" | awk 'NR>1 && $3=="yes"{n++} END{print n+0}')
     NO_COUNT_AFTER=$(echo "$LIST_AFTER" | awk 'NR>1 && $3=="no"{n++} END{print n+0}')
     assert_eq "post-rotate: exactly 1 active key" "1" "$YES_COUNT_AFTER"
@@ -990,8 +990,8 @@ else
     fi
 
     # Second rotate → 3 keys total, 1 active.
-    "$MAXIO_BIN" keyring rotate --data-dir "$DATA_DIR" > /dev/null
-    LIST_FINAL=$("$MAXIO_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
+    "$NIMBUS_BIN" keyring rotate --data-dir "$DATA_DIR" > /dev/null
+    LIST_FINAL=$("$NIMBUS_BIN" keyring list --data-dir "$DATA_DIR" 2>&1)
     TOTAL_FINAL=$(echo "$LIST_FINAL" | awk 'NR>1' | wc -l | tr -d ' ')
     assert_eq "second rotate: 3 keys total" "3" "$TOTAL_FINAL"
 

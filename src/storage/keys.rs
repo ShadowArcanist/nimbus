@@ -1,7 +1,7 @@
 //! Keyring management for SSE-S3 master keys.
 //!
 //! On startup, the keyring is loaded from two sources (merged):
-//! 1. `MAXIO_MASTER_KEY` env var / CLI flag — base64-encoded 32-byte key; takes
+//! 1. `NIMBUS_MASTER_KEY` env var / CLI flag — base64-encoded 32-byte key; takes
 //!    precedence and becomes the active key for new writes.
 //! 2. `{data_dir}/.maxio-keys.json` — JSON array of persisted keys; used for
 //!    unwrapping DEKs on existing objects.
@@ -60,11 +60,11 @@ impl Keyring {
 
         let active_id = if let Some(mk) = master_key_b64 {
             // --- env-var key path ---
-            let raw = B64
-                .decode(mk)
-                .map_err(|_| anyhow::anyhow!("MAXIO_MASTER_KEY must be base64-encoded 32 bytes"))?;
+            let raw = B64.decode(mk).map_err(|_| {
+                anyhow::anyhow!("NIMBUS_MASTER_KEY must be base64-encoded 32 bytes")
+            })?;
             if raw.len() != 32 {
-                anyhow::bail!("MAXIO_MASTER_KEY must be exactly 32 bytes when decoded");
+                anyhow::bail!("NIMBUS_MASTER_KEY must be exactly 32 bytes when decoded");
             }
             let mut key_bytes = [0u8; 32];
             key_bytes.copy_from_slice(&raw);
@@ -115,7 +115,7 @@ impl Keyring {
                     warn!(
                         path = %file_path,
                         "SSE-S3 keyring created without owner-only file permissions on this platform — \
-                         restrict ACLs manually so only the maxio service account can read it"
+                         restrict ACLs manually so only the nimbus service account can read it"
                     );
                 }
                 fs::rename(&tmp_path, &file_path).await?;
@@ -216,7 +216,7 @@ impl Keyring {
     fn get_key(&self, key_id: &str) -> anyhow::Result<&[u8; 32]> {
         self.keys
             .get(key_id)
-            .ok_or_else(|| anyhow::anyhow!("Key '{}' not found in keyring; object may be unrecoverable — check your MAXIO_MASTER_KEY or keyring file", key_id))
+            .ok_or_else(|| anyhow::anyhow!("Key '{}' not found in keyring; object may be unrecoverable — check your NIMBUS_MASTER_KEY or keyring file", key_id))
     }
 }
 
@@ -281,7 +281,7 @@ pub async fn rotate(data_dir: &str) -> anyhow::Result<RotateResult> {
         warn!(
             path = %file_path,
             "SSE-S3 keyring rotated without owner-only file permissions on this platform — \
-             verify ACLs restrict access to the maxio service account"
+             verify ACLs restrict access to the nimbus service account"
         );
     }
     fs::rename(&tmp_path, &file_path).await?;
@@ -350,7 +350,7 @@ mod tests {
         let dek = Keyring::generate_dek();
         let (wrapped, nonce) = bootstrap.wrap_dek(&bootstrap_id, &dek).unwrap();
 
-        // Reload with explicit MAXIO_MASTER_KEY — operator takes over.
+        // Reload with explicit NIMBUS_MASTER_KEY — operator takes over.
         let (new_b64, _) = rand_key_b64();
         let reloaded = Keyring::load(&dir, Some(&new_b64)).await.unwrap();
 
