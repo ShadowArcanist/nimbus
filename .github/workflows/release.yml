@@ -19,7 +19,7 @@ env:
   CARGO_TERM_COLOR: always
   GITHUB_REGISTRY: ghcr.io
   DOCKER_REGISTRY: docker.io
-  IMAGE_NAME: "coollabsio/maxio"
+  IMAGE_NAME: "shadowarcanist/nimbus"
 
 jobs:
   build:
